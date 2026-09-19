@@ -1,0 +1,313 @@
+:root {
+  --bg: #16181d;
+  --panel: #1e2128;
+  --panel-2: #262a33;
+  --line: #333845;
+  --text: #e8eaef;
+  --muted: #9aa2b1;
+  --accent: #4c8dff;
+  --ok: #38c172;
+  --warn: #e8a33d;
+  --err: #f2635f;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+.screen { height: 100%; display: flex; flex-direction: column; }
+[hidden] { display: none !important; }
+
+/* ------------------------------- setup ------------------------------- */
+
+#setup, #done { align-items: center; justify-content: center; overflow-y: auto; }
+
+.card {
+  width: min(680px, 92vw);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 36px 40px 32px;
+  margin: 24px 0;
+}
+
+h1 { margin: 0 0 4px; font-size: 26px; font-weight: 600; letter-spacing: -0.3px; }
+.lede { margin: 0 0 28px; color: var(--muted); }
+
+.field { display: block; margin-bottom: 22px; }
+.label { display: block; margin-bottom: 7px; font-weight: 500; font-size: 14px; }
+.label em { color: var(--muted); font-weight: 400; font-style: normal; }
+.hint { display: block; margin-top: 7px; font-size: 13px; color: var(--muted); }
+.hint code, .path code {
+  background: var(--panel-2); padding: 1px 6px; border-radius: 4px;
+  font-family: Consolas, monospace; font-size: 12.5px;
+}
+
+.row { display: flex; gap: 8px; }
+.row.center { justify-content: center; margin-top: 24px; }
+
+input[type=text], input[type=number] {
+  flex: 1; min-width: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 10px 12px;
+  font: inherit;
+  user-select: text;
+}
+input[type=text]:focus, input[type=number]:focus {
+  outline: none; border-color: var(--accent);
+}
+input[type=number] { flex: 0 0 80px; text-align: center; }
+
+.btn {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 10px 16px;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .12s, border-color .12s;
+}
+.btn:hover { background: #303643; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
+.btn.primary:hover { background: #3d7ced; }
+.btn.big { width: 100%; padding: 13px; font-size: 16px; margin-top: 8px; }
+.btn.icon { padding: 6px 11px; font-weight: 600; }
+.btn:disabled { opacity: .5; cursor: default; }
+
+.advanced { margin: 6px 0 22px; border-top: 1px solid var(--line); padding-top: 14px; }
+.advanced summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+.opts { display: grid; gap: 12px; margin-top: 16px; }
+.opts label { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.opts label > input { margin-left: auto; }
+.unit { color: var(--muted); font-size: 13px; flex: 0 0 auto; width: 110px; }
+
+/* Big click target: choosing a folder is the primary action, not typing. */
+.chooser {
+  display: flex; align-items: center; gap: 14px; width: 100%;
+  background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px 16px; text-align: left; cursor: pointer;
+  color: var(--text); font: inherit;
+  transition: border-color .12s, background .12s;
+}
+.chooser:hover { background: #303643; border-color: var(--accent); }
+.chooser:disabled { opacity: .6; cursor: default; }
+.chooser-icon { font-size: 22px; line-height: 1; flex: 0 0 auto; }
+.chooser-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.chooser-text b { font-weight: 600; font-size: 14px; }
+.chooser-text em {
+  font-style: normal; font-size: 13px; color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.chooser.chosen { border-color: var(--ok); }
+.chooser.chosen .chooser-text em { color: var(--ok); }
+.chooser.subtle { padding: 11px 16px; }
+
+.logo-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.logo-list li {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 8px; padding: 7px 10px 7px 8px; font-size: 13px;
+}
+.logo-list .n {
+  flex: 0 0 auto; width: 20px; height: 20px; border-radius: 5px;
+  background: var(--accent); color: #fff;
+  display: grid; place-items: center; font-size: 11px; font-weight: 700;
+}
+.logo-list .f { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.logo-list .rm {
+  flex: 0 0 auto; background: none; border: 0; cursor: pointer;
+  color: var(--muted); font-size: 18px; line-height: 1; padding: 0 4px;
+}
+.logo-list .rm:hover { color: var(--err); }
+
+.advanced.typed summary { font-size: 13px; }
+.advanced.typed .opts label { display: grid; grid-template-columns: 130px 1fr; gap: 10px; }
+.advanced.typed .opts input { flex: 1; }
+
+.guide-link {
+  display: block; text-align: center; margin-top: 16px;
+  color: var(--muted); font-size: 14px; text-decoration: none;
+}
+.guide-link:hover { color: var(--accent); text-decoration: underline; }
+.credit-line { text-align: center; margin: 18px 0 0; font-size: 12.5px; color: var(--muted); }
+.credit-line a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--line); }
+.credit-line a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; align-items: center; }
+.modal-actions .btn { text-decoration: none; display: inline-block; }
+
+.error { color: var(--err); font-size: 14px; margin: 0 0 14px; }
+.busy-note { color: var(--warn); font-size: 14px; margin-bottom: 14px; }
+.path { color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+/* -------------------------------- bar -------------------------------- */
+
+.bar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 16px; height: 52px; flex: 0 0 52px;
+  background: var(--panel); border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+/* Only the filename may shrink; everything else keeps its size so nothing
+   gets squeezed out of the bar on a smaller screen. */
+.bar > * { flex: 0 0 auto; }
+.counter { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--muted); }
+.counter strong { color: var(--text); font-size: 17px; }
+
+.progress { width: 130px; height: 5px; background: var(--panel-2); border-radius: 3px; overflow: hidden; }
+#progressFill { height: 100%; width: 0; background: var(--accent); transition: width .15s; }
+
+.filename {
+  font-size: 13px; color: var(--muted);
+  flex: 0 1 auto; min-width: 0; max-width: 260px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.spacer { flex: 1 1 auto; }
+
+.sizer { display: flex; align-items: center; gap: 9px; font-size: 13px; }
+.sizer .label { margin: 0; color: var(--muted); font-weight: 400; }
+.sizer input[type=range] { width: 120px; accent-color: var(--accent); }
+.sizer output { font-variant-numeric: tabular-nums; width: 42px; color: var(--muted); }
+
+.counts { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.ok { background: var(--ok); }
+.dot.busy { background: var(--warn); animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+
+/* Drop the least important bits first on a narrow window. */
+@media (max-width: 1150px) { .filename { display: none; } }
+@media (max-width: 980px)  { .progress { display: none; } }
+@media (max-width: 860px)  { .counts   { display: none; } }
+
+/* ------------------------------- stage ------------------------------- */
+
+.stage {
+  flex: 1; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: 18px; min-height: 0;
+  background: #101216;
+}
+
+.frame { position: relative; line-height: 0; cursor: crosshair; box-shadow: 0 6px 30px rgba(0,0,0,.5); }
+.frame img#photo { display: block; width: 100%; height: 100%; }
+
+.stage { --logo-opacity: 1; }
+.placed-layer .mark { opacity: var(--logo-opacity); }
+
+.ghost {
+  position: absolute; pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: calc(.85 * var(--logo-opacity));
+  filter: drop-shadow(0 0 3px rgba(0,0,0,.6));
+  transition: opacity .1s;
+}
+.ghost.hidden { opacity: 0; }
+.ghost.set { opacity: var(--logo-opacity); filter: none; }
+
+.logo-bar { display: flex; gap: 6px; align-items: center; }
+.logo-chip {
+  position: relative; width: 38px; height: 34px; padding: 3px;
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 8px; cursor: pointer; display: grid; place-items: center;
+}
+.logo-chip img {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+  /* logos are often white or near-white, so give them a ground to sit on */
+  background: repeating-conic-gradient(#5a6070 0% 25%, #474d5b 0% 50%) 0 0/8px 8px;
+  border-radius: 3px;
+}
+.logo-chip span {
+  position: absolute; bottom: -2px; right: 1px;
+  font-size: 9px; font-weight: 700; color: var(--muted);
+  background: var(--panel); border-radius: 3px; padding: 0 3px; line-height: 1.4;
+}
+.logo-chip.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.logo-chip.active span { color: var(--accent); }
+.logo-chip.done::after {
+  content: "✓"; position: absolute; top: -3px; left: -3px;
+  font-size: 9px; font-weight: 700; color: #06240f;
+  background: var(--ok); border-radius: 50%; width: 13px; height: 13px;
+  display: grid; place-items: center; line-height: 1;
+}
+
+.placed-layer { position: absolute; inset: 0; pointer-events: none; }
+.placed-layer .mark { position: absolute; transform: translate(-50%, -50%); }
+
+.placed {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  background: rgba(56,193,114,.92); color: #06240f;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; line-height: 1.6; white-space: nowrap;
+}
+
+.loading {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); background: #101216;
+}
+
+.hints {
+  flex: 0 0 auto; padding: 9px 16px;
+  display: flex; gap: 18px; flex-wrap: wrap;
+  background: var(--panel); border-top: 1px solid var(--line);
+  font-size: 12.5px; color: var(--muted);
+}
+kbd {
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-bottom-width: 2px; border-radius: 5px;
+  padding: 1px 6px; margin-right: 3px;
+  font-family: inherit; font-size: 11.5px; color: var(--text);
+}
+
+/* ------------------------------- modal ------------------------------- */
+
+.modal {
+  position: fixed; inset: 0; z-index: 10;
+  background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-card {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 14px; padding: 30px 34px;
+  width: min(520px, 92vw); max-height: 86vh; overflow-y: auto;
+}
+.modal-card h2 { margin: 0 0 20px; font-size: 20px; font-weight: 600; }
+.modal-card dl { margin: 0 0 24px; display: grid; grid-template-columns: auto 1fr; gap: 10px 20px; font-size: 14px; }
+.modal-card dt { font-weight: 600; white-space: nowrap; }
+.modal-card dd { margin: 0; color: var(--muted); }
+
+.resumed {
+  display: flex; align-items: center; gap: 12px;
+  background: #1f3050; border-bottom: 1px solid var(--accent);
+  padding: 9px 16px; font-size: 13px; color: #cfe0ff;
+}
+.resumed .btn { margin-left: auto; padding: 4px 12px; }
+
+/* A silent JS error once let size changes fail without any sign of trouble.
+   Surface them: the user cannot open developer tools. */
+.crash {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+  z-index: 20; max-width: min(760px, 92vw);
+  display: flex; align-items: center; gap: 12px;
+  background: #3a1f1f; border: 1px solid var(--err); border-radius: var(--radius);
+  padding: 12px 14px; font-size: 13px; color: #ffd9d7;
+}
+.crash b { color: var(--err); white-space: nowrap; }
+.crash span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: Consolas, monospace; }
+.crash .btn { margin-left: auto; padding: 5px 11px; }

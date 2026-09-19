@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logo Stamper</title>
+<link rel="icon" href="/static/icon.png">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ============================ SETUP ============================ -->
+<section id="setup" class="screen">
+  <div class="card">
+    <h1>Logo Stamper</h1>
+    <p class="lede">Place your logo on hundreds of photos, one click each.</p>
+
+    <div class="field">
+      <span class="label">1. Folder with your photos</span>
+      <button class="chooser" data-pick="folder" data-target="photoDir">
+        <span class="chooser-icon">📁</span>
+        <span class="chooser-text">
+          <b>Choose folder…</b>
+          <em data-path-for="photoDir">No folder chosen yet</em>
+        </span>
+      </button>
+      <input id="photoDir" type="hidden">
+    </div>
+
+    <div class="field">
+      <span class="label">2. Your logo(s) <em>(PNG with transparency works best)</em></span>
+      <button class="chooser" data-pick="files" data-target="logoPath">
+        <span class="chooser-icon">🖼️</span>
+        <span class="chooser-text">
+          <b>Add logo…</b>
+          <em data-path-for="logoPath">Select one, or several with Ctrl — click again to add more</em>
+        </span>
+      </button>
+      <ul id="logoList" class="logo-list"></ul>
+      <input id="logoPath" type="hidden">
+    </div>
+
+    <div class="field">
+      <span class="label">3. Where the finished photos go</span>
+      <button class="chooser subtle" data-pick="folder" data-target="outDir">
+        <span class="chooser-icon">💾</span>
+        <span class="chooser-text">
+          <b>Choose folder…</b>
+          <em data-path-for="outDir">Automatic — a “…_stamped” folder next to your photos</em>
+        </span>
+      </button>
+      <input id="outDir" type="hidden">
+      <span class="hint">Your original photos are never changed. Files are saved as <code>name_stamped.jpg</code>.</span>
+    </div>
+
+    <details class="advanced">
+      <summary>More options</summary>
+      <div class="opts">
+        <label>Logo size <input id="setScale" type="number" min="1" max="60" step="0.5" value="10"><span class="unit">% of photo size</span></label>
+        <label>Opacity <input id="setOpacity" type="number" min="10" max="100" step="5" value="100"><span class="unit">%</span></label>
+        <label>Save progress every <input id="setBatch" type="number" min="1" max="200" step="1" value="10"><span class="unit">photos</span></label>
+      </div>
+    </details>
+
+    <details class="advanced typed">
+      <summary>The Choose buttons did not work — let me type the paths</summary>
+      <div class="opts">
+        <label>Photos folder <input id="photoDirTyped" type="text" spellcheck="false" placeholder="C:\Users\You\Pictures\Shoot"></label>
+        <label>Logo file <input id="logoPathTyped" type="text" spellcheck="false" placeholder="C:\Users\You\Pictures\logo.png"></label>
+        <label>Output folder <input id="outDirTyped" type="text" spellcheck="false" placeholder="(leave empty for automatic)"></label>
+      </div>
+    </details>
+
+    <p id="setupError" class="error" hidden></p>
+    <button id="start" class="btn primary big">Start</button>
+    <a class="guide-link" href="/static/guide.html" target="_blank" rel="noopener">
+      📖 How to use this — full instructions
+    </a>
+    <p class="credit-line">
+      Made by
+      <a href="https://github.com/Zer0-Dark" target="_blank" rel="noopener">Zer0-Dark</a>
+    </p>
+  </div>
+</section>
+
+<!-- =========================== STAMPING =========================== -->
+<section id="work" class="screen" hidden>
+  <header class="bar">
+    <div class="counter"><strong id="idx">0</strong> <span>/</span> <span id="total">0</span></div>
+    <div class="progress"><div id="progressFill"></div></div>
+    <div class="filename" id="filename">—</div>
+    <div class="spacer"></div>
+    <div id="logoBar" class="logo-bar" hidden></div>
+    <div class="sizer">
+      <span class="label">Size</span>
+      <input id="scale" type="range" min="2" max="40" step="0.5" value="10">
+      <output id="scaleOut">10%</output>
+    </div>
+    <div class="sizer">
+      <span class="label">Opacity</span>
+      <input id="opacity" type="range" min="10" max="100" step="5" value="100">
+      <output id="opacityOut">100%</output>
+    </div>
+    <div class="counts">
+      <span class="dot ok"></span><span id="doneCount">0</span> saved
+      <span class="dot busy" id="busyDot" hidden></span><span id="busyCount" hidden>0</span>
+    </div>
+    <button id="help" class="btn icon" title="Keyboard shortcuts">?</button>
+    <button id="finish" class="btn">Finish</button>
+  </header>
+
+  <div id="resumed" class="resumed" hidden>
+    <span id="resumedText"></span>
+    <button id="resumedClose" class="btn">OK</button>
+  </div>
+
+  <main id="stage" class="stage">
+    <div id="frame" class="frame">
+      <img id="photo" alt="" draggable="false">
+      <div id="placedLayer" class="placed-layer"></div>
+      <img id="ghost" class="ghost" alt="" draggable="false">
+      <div id="placedMark" class="placed" hidden>✓ placed — click again to move</div>
+    </div>
+    <div id="loading" class="loading" hidden>Loading…</div>
+  </main>
+
+  <footer class="hints">
+    <kbd>Click</kbd> place &amp; next
+    <kbd>1</kbd>–<kbd>9</kbd> corners (numpad layout)
+    <kbd>Space</kbd> same as last
+    <kbd>←</kbd><kbd>→</kbd> move
+    <kbd>Backspace</kbd> undo
+    <kbd>Tab</kbd> next logo
+    <kbd>S</kbd> skip
+    <kbd>+</kbd><kbd>−</kbd> size
+  </footer>
+</section>
+
+<!-- ============================ DONE ============================ -->
+<section id="done" class="screen" hidden>
+  <div class="card">
+    <h1>All done</h1>
+    <p id="doneSummary" class="lede"></p>
+    <div id="doneBusy" class="busy-note" hidden>Still saving the last few photos…</div>
+    <p id="doneFailed" class="error" hidden></p>
+    <p class="path">Your photos are in:<br><code id="donePath"></code></p>
+    <div class="row center">
+      <a class="btn" href="/static/guide.html" target="_blank" rel="noopener">Instructions</a>
+      <button id="backToWork" class="btn">Keep stamping</button>
+      <button id="quit" class="btn primary">Close</button>
+    </div>
+  </div>
+</section>
+
+<div id="crash" class="crash" hidden>
+  <b>Something went wrong in the app.</b>
+  <span id="crashText"></span>
+  <button id="crashClose" class="btn">Dismiss</button>
+</div>
+
+<div id="helpModal" class="modal" hidden>
+  <div class="modal-card">
+    <h2>Keyboard shortcuts</h2>
+    <dl>
+      <dt>Click on the photo</dt><dd>Put the logo there and go to the next photo</dd>
+      <dt>1 – 9</dt><dd>Nine fixed spots, laid out like a numpad:<br>7 8 9 = top row · 4 5 6 = middle · 1 2 3 = bottom</dd>
+      <dt>Space</dt><dd>Use the same spot as the previous photo</dd>
+      <dt>S</dt><dd>Skip this photo (no logo)</dd>
+      <dt>Backspace</dt><dd>Go back one photo to redo it</dd>
+      <dt>← →</dt><dd>Move between photos without changing anything</dd>
+      <dt>Tab</dt><dd>Switch to the next logo (when you chose more than one)</dd>
+      <dt>Delete</dt><dd>Remove the current logo from this photo</dd>
+      <dt>+ / −</dt><dd>Make the logo bigger or smaller (all photos)</dd>
+      <dt>Shift + scroll</dt><dd>Change the size for this one photo only</dd>
+      <dt>Esc</dt><dd>Close this box</dd>
+    </dl>
+    <div class="modal-actions">
+      <a class="btn" href="/static/guide.html" target="_blank" rel="noopener">Full instructions</a>
+      <button id="helpClose" class="btn primary">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
